@@ -45,10 +45,10 @@
 		{% endif %}
 		</div>
 
-		<a href="/rango/add_category/"> <h2>Add a New Category</h2></a><br />
+		<a href="{% url 'add_category' %}"> <h2>Add a New Category</h2></a><br />
 
 		<div>
-			<a href="/rango/about/"><h2>About</h2></a>
+			<a href="{% url 'about' %}"><h2>About</h2></a>
 			<img src="{% static "images/rango.jpg" %}"
 				alt="Picture of Rango" /> <!-- New line --> 
 		</div>
