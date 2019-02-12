@@ -12,7 +12,7 @@ def index(request):
     #return HttpResponse("Rango says hey there partner!<br/> <a href='/rango/about/'>About</a>")
 
 def about(request):
-    return render(request, 'rango/about.html')
+    return render(request, 'rango/about.html', {})
     #return HttpResponse("Rango says here is the about page.<br/> <a href='/rango/'>Index</a>")
     
 def show_category(request, category_name_slug):
@@ -39,13 +39,14 @@ def add_category(request):
     
     #a http post? yummmy
     if request.method == 'POST':
+        #if i received a post request from the user on the page, then post the contents of the form
         form = CategoryForm(request.POST)
         if form.is_valid():
             form.save(commit = True)
             return index(request)
         else:
             print(form.errors)
-    return render(request, 'rango/add_category.html', {'form': form})
+    return render(request, 'rango/add_category.html', {'form': form } )
 
 def add_page(request,category_name_slug):
     try:
