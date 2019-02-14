@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from rango.models import Category, Page
 from rango.forms import CategoryForm, PageForm
+from rango.forms import UserForm, UserProfileForm
 def index(request):
     
     category_list = Category.objects.order_by('-likes')[:5]
@@ -68,3 +69,43 @@ def add_page(request,category_name_slug):
                 
     context_dict = {'form':form, 'category':category}
     return render(request, 'rango/add_page.html', context_dict)
+
+#important! this function basically handles both displaying the form and processing data from it..
+def register(request):
+    registered = False
+    #if it's a http post, then we it meaans we're getting form data which we must in turn process!
+    if request.method == 'POST':
+        #try to grab the raw request data(binary?) 
+        user_form = UserForm(data = request.POST)
+        profile_form = UserProfileForm(data = request.POST)
+        #if the data from the two forms is valid..
+        if user_form.is_valid() and profile_form.is_valid():
+            #save the user FORM DATA to the database (but has it been processed yet?)
+            user = user_form.save()
+            #hash the password, once hashed we then create an user object !!
+            user.set_password(user.password)
+            user.save() #i.e. now we STORE it in the database; before in was just in the server's RAM or smtng
+            #setting commit = false delays saving the mode until we are rid of integrity problems
+            #create a variable which stores all the data frm the userProfile form...
+            profile = profile_form.save(commit=False)
+            #flesh the 1 to 1 relationship i.e. fix the userprofiles's user associate
+            profile.user = user
+            
+            #if the user provided a pic in the registration form..
+            if 'picture' in request.FILES:
+                profile.picture = request.FILES['picture']
+            profile.save()
+            
+            registered = True
+            
+        else:
+            #one of the form (or both) is invalid; print the errors to terminal
+            print(user_form.errors, profile_form.errors)
+    else: #if it's not a post, actually...then it is a GET! sooo let's display stuff
+        user_form = UserForm()
+        profile_form = UserProfileForm()
+        
+    return render(request, 'rango/register.html', 
+                  {'user_form': user_form, 'profile_form': profile_form, 'registered': registered})
+    
+            
