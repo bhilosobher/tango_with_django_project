@@ -28,7 +28,11 @@ def about(request):
     if request.session.test_cookie_worked():
         print('TEST COOKIE WORKED!')
         request.session.delete_test_cookie()
-    return render(request, 'rango/about.html', {})
+        #add cookie information to the respose
+    visitor_cookie_handler(request)
+    context_dict = {'visits':request.session['visits']}
+    response = render(request, 'rango/about.html',context_dict)
+    return response
     #return HttpResponse("Rango says here is the about page.<br/> <a href='/rango/'>Index</a>")
     
 def show_category(request, category_name_slug):
@@ -160,7 +164,7 @@ def visitor_cookie_handler(request):
     last_visit_time = datetime.strptime(last_visit_cookie[:-7], "%Y-%m-%d %H:%M:%S")
     #last_visit_time = datetime.now()
     # If it's been more than a day since the last visit...
-    if (datetime.now() - last_visit_time).seconds > 0:
+    if (datetime.now() - last_visit_time).days > 0:
         visits = visits + 1
         #update the last visit cookie now that we have updated the count
         request.session['last_visit'] = str(datetime.now())
